@@ -4,6 +4,18 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.2.1] - 2026-11-11
+
+### Fixed
+
+- **The plugin failed to load in a real DSH host.** Tool output schemas used the
+  author-DSL sugar `required: true` on individual properties; `tools.register`
+  takes raw JSON Schema, where `required` is an object-level array, so startup
+  failed with `JsonSchemaError: ... schema.properties.ok.required is not
+  supported on type "boolean"`. Schemas are now raw JSON Schema, validated in CI
+  by a regression test, and verified locally against DSH's own
+  `assertSupportedJsonSchema` imported from the installed `app.asar`.
+
 ## [0.2.0] - 2026-11-11
 
 ### Added

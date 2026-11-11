@@ -1,6 +1,6 @@
 {
   "name": "dsh-effort-pilot",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Per-step thinking-effort pilot for DeepSeek Harness: cheap tool rounds stay cheap, failures escalate, and the model gets a set_effort tool — same model, same prompt prefix, no KV-cache churn.",
   "type": "module",
   "main": "lib/index.js",

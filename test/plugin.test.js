@@ -121,6 +121,34 @@ test('misconfigured plugin fails at mount time', () => {
   assert.throws(() => apply(ctx, { simpleStreak: -1 }), /positive integer/);
 });
 
+test('declared schemas use raw JSON Schema, not the author DSL', () => {
+  const ctx = fakeCtx();
+  apply(ctx, {});
+
+  const assertNode = (node, path) => {
+    assert.equal(typeof node, 'object', `${path} must be an object`);
+    if (node.type === 'object') {
+      if (node.required !== undefined) {
+        assert.ok(Array.isArray(node.required), `${path}.required must be an array at the object level`);
+        for (const key of node.required) {
+          assert.ok(node.properties && key in node.properties, `${path}.required lists unknown property "${key}"`);
+        }
+      }
+      for (const [key, child] of Object.entries(node.properties ?? {})) assertNode(child, `${path}.properties.${key}`);
+      return;
+    }
+    // DSH rejects `required` on non-object value schemas: it is author-DSL
+    // sugar, not raw JSON Schema. This is what broke the first local boot.
+    assert.equal(node.required, undefined, `${path}.required is not allowed on type "${node.type}"`);
+    if (node.type === 'array') assertNode(node.items, `${path}.items`);
+  };
+
+  for (const definition of ctx.registered) {
+    assertNode(definition.parameters, `${definition.name}.parameters`);
+    assertNode(definition.output.schema, `${definition.name}.output`);
+  }
+});
+
 test('tool outputs never exceed their declared output schema', async () => {
   const ctx = fakeCtx();
   apply(ctx, {});
