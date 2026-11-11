@@ -3,7 +3,7 @@
 
 <p align="center"><a href="https://github.com/atlasmarkz/dsh-effort-pilot/releases"><img alt="release" src="https://img.shields.io/github/v/release/atlasmarkz/dsh-effort-pilot"></a> <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-4f8cff"></a></p>
 
-> **一句话算账：** 思考 token 按输出价计费。把 60% 的简单工具轮从 `max` 降到 `low`，一个 30 步任务约省 **3 万输出 token**——OpenCode Go 的 V4.1 Flash 约 **2 美分/任务**、V4 Pro 约 **6 美分/任务**。
+> **一句话算账：** 思考 token 按输出价计费。**实测**（OpenCode Go V4.1 Flash，本机 DSH）：同一任务把档位从 `max` 降到 `low`，输出 token 约 **-36%**、解码耗时约 **-38%**、整轮耗时约 **-33%**；30 步任务量级约省 0.3 万–1 万输出 token，折算 Flash 约 **0.2–0.6 美分**、V4 Pro 约 **0.5–2 美分**。速度收益比省钱更明显；模型越贵、思考越重，省得越多。方法与原始数据见 [BENCHMARK.md](BENCHMARK.md)。
 
 给 DeepSeek Harness（DSH）的**逐步思考强度驾驶仪**：简单工具轮自动降档、失败与重活自动升档，Agent 还能用 `set_effort` 自己调节——**从不换模型**，提示词前缀与缓存不受影响。
 
@@ -49,11 +49,14 @@ dsh plugin --profile web add github:atlasmarkz/dsh-effort-pilot
 - **`set_effort`** —— Agent 自己改档，必须给理由；`{ "level": "auto" }` 把控制权交回驾驶仪。
 - **`effort_status`** —— 当前档位、模型可用档位、hold 剩余轮数、最近决策台账。
 
-## 成本估算
+## 成本估算（实测）
 
-30 步任务、`max` 每步约 2,500 思考 token、`low` 约 800，其中 60% 步骤降档 → 省 ≈ **30,600 输出 token**。按 OpenCode Go 目录价：Flash `$0.60/M` ≈ **$0.018/任务**，V4 Pro `$1.98/M` ≈ **$0.061/任务**；每天 20 个这样的任务 ≈ **$11 / $37 每月**。
+本机实测（详见 [BENCHMARK.md](BENCHMARK.md)，n=2，网关噪声可见）：
 
-通用公式：**降档步骤占比 × 每步省下的思考 token × 输出单价**。用 DSH 自带 token 统计 + `effort_status` 台账校准你自己的比例。
+- 推理任务：`max` → `low`，输出 token **3,700 → 2,362（-36%）**，解码 47.8s → 29.5s，整轮 71.4s → 47.6s；
+- 机械任务：auto 降档后输出 token **1,216 → 763（-37%）**，解码 9.4s → 3.9s。
+
+按 30 步任务折算：约省 **0.3 万–1 万输出 token**；OpenCode Go 目录价下 Flash 约 **$0.002–0.006**/任务，V4 Pro（输出 `$1.98/M`）约 **$0.005–0.020**。通用公式：**降档步骤占比 × 每步省下的思考 token × 输出单价**；用 DSH 自带 token 统计 + `effort_status` 台账校准你自己的比例。**速度提升比省钱更直接**（约 -33% 整轮耗时），模型越贵、思考越重，省钱越明显。
 
 ## 开发
 

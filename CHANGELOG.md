@@ -4,6 +4,20 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [1.0.1] - 2026-11-12
+
+### Changed
+
+- Replaced the README cost estimate with measured A/B results: `max` → `low`
+  cuts output tokens ~36% and wall clock ~33% on a reasoning task; the absolute
+  saving is 0.2–0.6¢ per task on V4.1 Flash, not a fixed 2¢. The original
+  estimate assumed ~2.5k thinking tokens per step, which the measured Flash runs
+  did not produce.
+
+### Added
+
+- `BENCHMARK.md` with methodology, raw numbers and reproduction steps.
+
 ## [1.0.0] - 2026-11-12
 
 First stable release. Verified end to end against a live DSH `0.2.2-alpha.2`

@@ -3,7 +3,7 @@
 
 <p align="center"><a href="https://github.com/atlasmarkz/dsh-effort-pilot/releases"><img alt="release" src="https://img.shields.io/github/v/release/atlasmarkz/dsh-effort-pilot"></a> <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-4f8cff"></a></p>
 
-> **The money line:** thinking tokens are billed as output. Downgrading 60% of the cheap tool rounds from `max` to `low` saves roughly **30k output tokens** on a 30-step task — about **2¢ per task** on OpenCode Go's DeepSeek V4.1 Flash and **6¢** on V4 Pro.
+> **The money line (measured):** thinking tokens are billed as output. On this machine (OpenCode Go, DeepSeek V4.1 Flash, DSH 0.2.2-alpha.2), dropping the same task from `max` to `low` cut output tokens by **~36%**, decode time by **~38%** and wall clock by **~33%**. A 30-step session saves roughly 3k–10k output tokens — about **$0.002–0.006** on Flash and **$0.005–0.020** on V4 Pro. The speed win is the bigger one; more expensive or more thinking-heavy models save proportionally more. Method and raw numbers: [BENCHMARK.md](BENCHMARK.md).
 
 A per-step **thinking-effort pilot** for DeepSeek Harness (DSH): cheap tool rounds drop a level, failures and heavy work lift one, and the agent can adjust its own depth with `set_effort` — **without ever switching models**, so the prompt prefix and its cache stay intact.
 
@@ -49,16 +49,19 @@ All keys and defaults live in [`lib/config.js`](lib/config.js); unknown keys fai
 - **`set_effort`** — the agent changes its own depth with a mandatory reason; `{ "level": "auto" }` hands control back.
 - **`effort_status`** — current level, declared levels, remaining hold, recent decision ledger.
 
-## Cost estimate
+## Cost estimate (measured)
 
-30-step task, `max` ~2,500 thinking tokens per step vs `low` ~800, 60% of steps downgraded → ≈ **30,600 output tokens saved**. At OpenCode Go catalog prices: Flash `$0.60/M` ≈ **$0.018/task**, V4 Pro `$1.98/M` ≈ **$0.061/task**; 20 such tasks a day ≈ **$11 / $37 a month**.
+From the local benchmark (see [BENCHMARK.md](BENCHMARK.md); n=2, gateway noise visible):
 
-Formula: **share of downgraded steps × thinking tokens saved per step × output price**. Calibrate with the host's token stats plus the `effort_status` ledger.
+- reasoning task: `max` → `low`, output tokens **3,700 → 2,362 (-36%)**, decode 47.8 s → 29.5 s, wall clock 71.4 s → 47.6 s;
+- mechanical task: after the pilot's downgrade, output tokens **1,216 → 763 (-37%)**, decode 9.4 s → 3.9 s.
+
+Projected to a 30-step session: ~3k–10k output tokens saved, i.e. **$0.002–$0.006** per task on Flash and **$0.005–$0.020** on V4 Pro (output `$1.98/M`). Formula: **share of downgraded steps × thinking tokens saved per step × output price**. The speed win is the more direct one (about -33% wall clock); more expensive or thinking-heavy models save more.
 
 ## Development
 
 ```bash
-node --test   # 40 tests; use node --test --test-isolation=none in restricted sandboxes
+node --test   # 41 tests; use node --test --test-isolation=none in restricted sandboxes
 ```
 
 Extension-point research, rejected alternatives, the full config and the roadmap live in [DESIGN.md](DESIGN.md); the market entry is in [`submission/`](submission/).
