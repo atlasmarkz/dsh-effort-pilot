@@ -1,0 +1,14 @@
+# dsh-effort-pilot bundle patch.
+#
+# `dsh plugin --profile web add dsh-effort-pilot` merges this layer into the
+# profile. Defaults live in lib/config.js; override them by targeting the same
+# id from your profile's cordis.patch.yml:
+#
+#   - id: effort-pilot
+#     config:
+#       baselineHint: high
+#       allowUpgrade: true
+#       simpleStreak: 2
+- insert:
+    - id: effort-pilot
+      name: dsh-effort-pilot

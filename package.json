@@ -1,0 +1,60 @@
+{
+  "name": "dsh-effort-pilot",
+  "version": "0.2.0",
+  "description": "Per-step thinking-effort pilot for DeepSeek Harness: cheap tool rounds stay cheap, failures escalate, and the model gets a set_effort tool — same model, same prompt prefix, no KV-cache churn.",
+  "type": "module",
+  "main": "lib/index.js",
+  "icon": "assets/icon-180.png",
+  "exports": {
+    ".": "./lib/index.js",
+    "./package.json": "./package.json",
+    "./cordis.patch.yml": "./cordis.patch.yml"
+  },
+  "files": [
+    "lib",
+    "assets/icon-180.png",
+    "assets/icon-96.png",
+    "assets/logo-512.png",
+    "assets/logo.svg",
+    "cordis.patch.yml",
+    "README.md",
+    "README.zh.md",
+    "DESIGN.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "reasoning-effort",
+    "thinking-level",
+    "agent",
+    "latency"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/atlasmarkz/dsh-effort-pilot.git"
+  },
+  "homepage": "https://github.com/atlasmarkz/dsh-effort-pilot#readme",
+  "bugs": {
+    "url": "https://github.com/atlasmarkz/dsh-effort-pilot/issues"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test",
+    "test:in-process": "node --test --test-isolation=none",
+    "test:watch": "node --test --watch"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}

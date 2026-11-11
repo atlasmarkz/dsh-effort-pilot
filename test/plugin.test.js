@@ -1,0 +1,143 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { apply, inject, name } from '../lib/index.js';
+
+const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+/** Minimal host context: the plugin only uses `on`, `tools.register` and `llm`. */
+function fakeCtx() {
+  const listeners = [];
+  const registered = [];
+  return {
+    listeners,
+    registered,
+    on(event, fn) {
+      if (event === 'session/event') listeners.push(fn);
+    },
+    tools: {
+      register(definition) {
+        registered.push(definition);
+        return () => {};
+      },
+    },
+    llm: {
+      async resolveModelInfo() {
+        return { reasoning: { efforts: [{ id: 'low' }, { id: 'high' }, { id: 'max' }] } };
+      },
+    },
+  };
+}
+
+/** Session stand-in whose append fans out to the plugin's listener. */
+function fakeSession(ctx, id = 's1') {
+  const session = {
+    id,
+    events: [],
+    appended: [],
+    snapshotEvents() {
+      return this.events;
+    },
+    append(type, data) {
+      const event = { type, data: structuredClone(data), seq: this.events.length };
+      this.events.push(event);
+      this.appended.push(event);
+      for (const listener of ctx.listeners) listener(session, event);
+      return event;
+    },
+  };
+  const emit = (type, data) => {
+    const event = { type, data: structuredClone(data), seq: session.events.length };
+    session.events.push(event);
+    for (const listener of ctx.listeners) listener(session, event);
+    return event;
+  };
+  return { session, emit };
+}
+
+function tool(ctx, toolName) {
+  return ctx.registered.find((definition) => definition.name === toolName);
+}
+
+test('exports the loader metadata', () => {
+  assert.equal(name, 'dsh-effort-pilot');
+  assert.deepEqual(inject, ['tools', 'llm']);
+});
+
+test('apply registers both tools', () => {
+  const ctx = fakeCtx();
+  apply(ctx, {});
+  assert.deepEqual(ctx.registered.map((definition) => definition.name).sort(), ['effort_status', 'set_effort']);
+  for (const definition of ctx.registered) {
+    assert.equal(typeof definition.execute, 'function');
+    assert.equal(typeof definition.output.render, 'function');
+    assert.equal(definition.parameters.type, 'object');
+  }
+});
+
+test('end to end: simple tool rounds downgrade, the agent can override, status reflects it', async () => {
+  const ctx = fakeCtx();
+  apply(ctx, { verbose: false });
+  const { session, emit } = fakeSession(ctx);
+
+  emit('turn/start', { turn: 1 });
+  emit('model/selection', { provider: 'opencode-go', model: 'deepseek-v4.1-flash', reasoningEffort: 'max' });
+  await tick();
+
+  emit('tool/call', { callId: 'c1', name: 'read', arguments: '{"path":"a.js"}' });
+  emit('tool/result', { turn: 1, step: 1, message: { toolCallId: 'c1', isError: false } });
+  await tick();
+
+  emit('tool/call', { callId: 'c2', name: 'read', arguments: '{"path":"b.js"}' });
+  emit('tool/result', { turn: 1, step: 2, message: { toolCallId: 'c2', isError: false } });
+  await tick();
+
+  const changes = session.appended.filter((event) => event.type === 'model/selection');
+  assert.equal(changes.length, 1);
+  assert.equal(changes[0].data.reasoningEffort, 'high');
+  assert.equal(changes[0].data.provider, 'opencode-go');
+
+  const setEffort = tool(ctx, 'set_effort');
+  const applied = await setEffort.execute({ level: 'max', reason: 'stuck on a concurrency bug' }, { agent: { session } });
+  assert.equal(applied.ok, true);
+  assert.equal(session.appended.at(-1).data.reasoningEffort, 'max');
+
+  const status = await tool(ctx, 'effort_status').execute({}, { agent: { session } });
+  assert.equal(status.effort, 'max');
+  assert.equal(status.manual, true);
+  assert.deepEqual(status.allowed, ['low', 'high', 'max']);
+});
+
+test('the tools refuse to run outside an agent session', async () => {
+  const ctx = fakeCtx();
+  apply(ctx, {});
+  const setEffort = await tool(ctx, 'set_effort').execute({ level: 'high', reason: 'x' }, {});
+  assert.equal(setEffort.ok, false);
+  const status = await tool(ctx, 'effort_status').execute({}, {});
+  assert.equal(status.auto, false);
+});
+
+test('misconfigured plugin fails at mount time', () => {
+  const ctx = fakeCtx();
+  assert.throws(() => apply(ctx, { simpleStreak: -1 }), /positive integer/);
+});
+
+test('tool outputs never exceed their declared output schema', async () => {
+  const ctx = fakeCtx();
+  apply(ctx, {});
+  const { session, emit } = fakeSession(ctx);
+  emit('turn/start', { turn: 1 });
+  emit('model/selection', { provider: 'p', model: 'm', reasoningEffort: 'high' });
+  await tick();
+
+  for (const definition of ctx.registered) {
+    const args = definition.name === 'set_effort' ? { level: 'max', reason: 'schema check' } : {};
+    const value = await definition.execute(args, { agent: { session } });
+    const properties = Object.keys(definition.output.schema.properties);
+    for (const key of Object.keys(value)) {
+      assert.ok(properties.includes(key), `${definition.name} returns undeclared field "${key}"`);
+    }
+    for (const key of definition.output.schema.required ?? []) {
+      assert.notEqual(value[key], undefined, `${definition.name} misses required field "${key}"`);
+    }
+  }
+});
