@@ -167,6 +167,57 @@ and still respects the manual override, the per-turn cap and the hold window.
   starting depth; metrics (TTFT / tok-s deltas) written to a local ledger;
   handoff notes attached to a switch.
 
+## Configuration reference
+
+| Key | Default | Meaning |
+|---|---|---|
+| `enabled` | `true` | master switch for the automatic pilot (tools stay available) |
+| `auto` | `true` | per-step scheduling; `false` = tools-only mode |
+| `allowDowngrade` / `allowUpgrade` | `true` | permit lowering / raising |
+| `floor` | `low` | lower bound of automatic downgrades |
+| `mixedLevel` / `heavyLevel` | `high` / `max` | upgrade targets |
+| `simpleRatio` / `simpleStreak` | `0.75` / `2` | how quickly simple rounds downgrade |
+| `smallPayloadBytes` / `heavyPayloadBytes` | `8192` / `32768` | payload thresholds (argument text length) |
+| `maxAutoChangesPerTurn` | `6` | per-turn safety cap |
+| `holdSteps` | `1` | rounds a fresh change is held before another automatic change (`0` disables) |
+| `decisionMemory` | `8` | per-session decision ledger size |
+| `escalateOnTurnError` / `escalateOnCodes` | `true` / `EMPTY_RESPONSE, MALFORMED_RESPONSE, SERVER, TIMEOUT` | lift one step after a depth-related model-request failure |
+| `simpleTools` | `read, read_file, ls, list_dir, grep, search, glob, find, write, write_file, edit, apply_patch, todo_write, job_list, job_output, job_kill, effort_status` | deterministic tools; shell tools are deliberately excluded |
+| `toolName` | `set_effort` | name of the agent-facing control tool |
+| `verbose` | `false` | print every decision to the host console |
+
+Validation is strict (`lib/config.js`): unknown keys, wrong types and out-of-range
+values fail at mount time instead of silently doing nothing.
+
+## Behavior notes
+
+- **Changes are step-granular.** DSH fixes the selection when a step is prepared,
+  so a pilot decision lands on the next step, never mid-stream.
+- **Only effort moves.** Provider/model are copied from the current selection;
+  switching models is explicitly out of scope (that is what preserves the cache).
+- **Manual choice wins.** Picking a different effort for the same model pauses
+  auto until the model calls `set_effort { level: "auto" }` or the session ends.
+- **Subagent sessions** are ordinary sessions; the pilot applies there too. Set
+  `auto: false` per profile if that is unwanted.
+- **No network, no files, no state beyond the session log** (except in-memory
+  decision bookkeeping: streaks, holds and the bounded ledger).
+
+## Credits
+
+Inspired by, and standing on the observations of:
+
+- [dsh-tool-turbo](https://github.com/Electricitysheep/dsh-tool-turbo) and
+  [dsh-thinking-levels](https://github.com/drscrewdriver/dsh-thinking-levels) —
+  simple-tool-round scheduling;
+- [dsh-router-laya](https://github.com/HapyRain/dsh-router-laya) and
+  [dsh-effort-dial](https://github.com/zengxiaolou/dsh-effort-dial) —
+  failure/retry escalation;
+- [dsh-set-model](https://github.com/john-walks-slow/dsh-set-model) — agent-visible
+  control and audit reasons;
+- [NVIDIA NeMo Switchyard](https://github.com/NVIDIA-NeMo/Switchyard) — hold
+  windows, decision ledgers and the model-routing layer this plugin deliberately
+  does not enter.
+
 ## Testing strategy
 
 - `lib/policy.js` is pure and exhaustively unit-tested (rules, ordering,
