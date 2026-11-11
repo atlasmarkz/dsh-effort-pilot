@@ -3,6 +3,10 @@
 
 <p align="center"><a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-4f8cff"></a></p>
 
+> **The money line:** thinking tokens are billed as output. Downgrading 60% of the cheap tool rounds from `max` to `low` saves roughly **30k output tokens** on a 30-step task — about **2¢ per task** on OpenCode Go's DeepSeek V4.1 Flash and **6¢** on V4 Pro (≈ **$11 / $37 a month** at 20 such tasks a day), with lower wall-clock time too. [How it is calculated](#cost-estimate).
+
+> The market entry is ready in [`submission/`](submission/) and submitted to the community plugin index **awesome-dsh-plugin** (the data source behind the DSH plugin market).
+
 Per-step **thinking-effort pilot** for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (DSH).
 
 Cheap tool rounds stay cheap, failures escalate, and the model gets a `set_effort` tool — **without ever switching models**, so the prompt prefix and its upstream cache stay intact.
@@ -26,6 +30,17 @@ Reasoning tokens dominate wall-clock time in agentic coding. A `max`-effort mode
 `dsh-effort-pilot` combines the useful 80%: **automatic per-step scheduling + failure escalation + agent-visible control**, with one hard rule — *the model route never changes*. Only `reasoningEffort` moves, so upstream prefix caching is preserved.
 
 It also deliberately targets the **current** DSH extension surface: on DSH `0.2.x` an `agent/request` listener may no longer change the route or effort (the agent loop throws `use agent.model.select() before step preparation`). The pilot writes `model/selection`, which is the supported, cache-safe path.
+
+## Cost estimate
+
+Not a marketing number — arithmetic under stated assumptions:
+
+- one 30-step task; `max` spends ~2,500 thinking tokens per step, `low` ~800 (varies by model and task);
+- 60% of the steps are cheap tool rounds that get downgraded: 18 × 1,700 ≈ **30,600 output tokens saved**;
+- thinking tokens are billed as output (OpenCode Go catalog prices): V4.1 Flash `$0.60/M` → **≈ $0.018/task**; V4 Pro `$1.98/M` → **≈ $0.061/task**;
+- at 20 such tasks a day: Flash ≈ **$11/month**, V4 Pro ≈ **$37/month**.
+
+Actual savings = **share of downgraded steps × thinking tokens saved per step × output price**. Use the host's token stats together with the `effort_status` decision ledger to calibrate the ratio for your own workload; more expensive models and longer sessions save more. Cache reads are cheap — this plugin saves by **generating fewer thinking tokens**, not by improving cache hits.
 
 ## Install
 

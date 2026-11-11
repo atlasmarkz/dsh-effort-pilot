@@ -3,6 +3,8 @@
 
 <p align="center"><a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-4f8cff"></a></p>
 
+> **一句话算账：** 思考 token 按输出价计费。把 60% 的简单工具轮从 `max` 降到 `low`，一个 30 步任务约省 **3 万输出 token**——OpenCode Go 的 V4.1 Flash 约 **2 美分/任务**、V4 Pro 约 **6 美分/任务**（每天 20 个这样的任务 ≈ 每月省 **$11 / $37**），总耗时也一起下降。算法见[成本估算](#成本估算)。
+
 > 收录条目已准备好（见 [`submission/`](submission/)），提交进社区插件目录 **awesome-dsh-plugin**（DSH 插件市场的数据源）后即可在市场里搜到。
 
 为 DeepSeek Harness（DSH）设计的**逐步思考强度驾驶仪**：便宜的工具体力活保持便宜，失败自动升档，模型还能用 `set_effort` 自己调节——**全程不换模型**，因此提示词前缀和上游缓存都不受影响。
@@ -26,6 +28,17 @@ Agent 写代码时，等待时间主要花在“每次工具调用前重新思�
 `dsh-effort-pilot` 取其中最有用的 80%：**逐步自动调度 + 失败升档 + Agent 可见的控制**，并立一条硬规矩——**永远不换模型**。只有 `reasoningEffort` 在动，所以上游前缀缓存得以保留。
 
 它同时瞄准**当前** DSH 的扩展面：在 DSH `0.2.x` 上，`agent/request` 监听器已经不能改路由或档位（agent loop 会抛 `use agent.model.select() before step preparation`）。本插件写的是 `model/selection` 事件，这是受支持、且缓存安全的路径。
+
+## 成本估算
+
+不是营销数字，是明确假设下的算术：
+
+- 一个 30 步任务；`max` 每步约 2,500 个思考 token，`low` 约 800 个（随模型与任务浮动）；
+- 60% 的步骤是简单工具轮、被降到 `low`：省下 18 × 1,700 ≈ **30,600 个输出 token**；
+- 思考 token 按输出 token 计费（OpenCode Go 目录价）：V4.1 Flash `$0.60/M` → **≈ $0.018/任务**；V4 Pro `$1.98/M` → **≈ $0.061/任务**；
+- 每天 20 个这样的任务：Flash ≈ **$11/月**，V4 Pro ≈ **$37/月**。
+
+实际节省 = **降档步骤占比 × 每步省下的思考 token × 输出单价**。用 DSH 自带的 token 统计和 `effort_status` 的决策台账，校准你自己工作负载下的真实比例；模型越贵、会话越长，省得越多。缓存读取本身很便宜，这个插件的节省来自**少生成**思考 token，而不是多命中缓存。
 
 ## 安装
 
