@@ -1,7 +1,7 @@
 <p align="center"><img src="assets/logo.svg" width="150" alt="dsh-effort-pilot logo: a three-step thinking-effort ladder next to an autopilot dial"></p>
 <h1 align="center">dsh-effort-pilot</h1>
 
-<p align="center"><a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-4f8cff"></a></p>
+<p align="center"><a href="https://github.com/atlasmarkz/dsh-effort-pilot/releases"><img alt="release" src="https://img.shields.io/github/v/release/atlasmarkz/dsh-effort-pilot"></a> <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-4f8cff"></a></p>
 
 > **The money line:** thinking tokens are billed as output. Downgrading 60% of the cheap tool rounds from `max` to `low` saves roughly **30k output tokens** on a 30-step task — about **2¢ per task** on OpenCode Go's DeepSeek V4.1 Flash and **6¢** on V4 Pro.
 

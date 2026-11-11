@@ -4,6 +4,27 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [1.0.0] - 2026-11-12
+
+First stable release. Verified end to end against a live DSH `0.2.2-alpha.2`
+host: the bundle composes (`dsh --profile web --dump-config` lists
+`- id: effort-pilot`), the loader reports `include:effort-pilot` **active**, and
+both tool schemas pass DSH's own `assertSupportedJsonSchema`.
+
+### Added
+
+- Stable surface: per-step scheduling from tool-round history, hold window,
+  failure-code-gated escalation, bounded decision ledger, `set_effort` /
+  `effort_status` tools, strict config validation, manual-override respect.
+- 41 unit tests, logo assets, market submission entry, English and Chinese
+  READMEs.
+
+### Notes
+
+- Compatibility: the DSH 0.2.x plugin surface — named exports (`name`,
+  `inject`, `apply`), `ctx.on`, `ctx.tools.register`, raw JSON Schema tool
+  definitions. No `@deepseek-ai/*` runtime dependencies, no build step.
+
 ## [0.2.1] - 2026-11-11
 
 ### Fixed
