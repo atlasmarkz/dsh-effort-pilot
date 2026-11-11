@@ -65,6 +65,50 @@ the order of magnitude as the result, not the exact milliseconds.
 - **Auto behaves as designed** inside one session: tier changes are per-step and
   per-session, and the decision ledger explains each move.
 
+## Experiment 3 — quality: max vs auto vs low
+
+Two tasks, **two samples per arm**, with a blind judge (`deepseek-v4-pro`)
+scoring anonymized answers against a ground truth list; the judge never saw
+which model/effort produced an answer.
+
+### Task A — fix a failing test suite (objective)
+
+Injected bugs in `sum.js`; 6 tests failing; tests must not be modified.
+
+| Arm | Passed (independently re-run) | Test file unchanged | Output tokens (avg) | Decode (avg) | Steps (avg) |
+|---|---:|---:|---:|---:|---:|
+| max | 6/6 ×2 | yes | 1,475 | 18.6 s | 8.5 |
+| auto | 6/6 ×2 | yes | 739 | 7.1 s | 5.5 |
+| low | 6/6 ×2 | yes | 728 | 4.4 s | 6 |
+
+All six fixes are the same standard implementation; no quality difference. Auto
+used notably fewer steps and half the output tokens, and its decision ledger
+shows it lifting back when work turned mixed (`high -> low -> high
+(auto:mixed-work)`).
+
+### Task B — code review with six injected bugs (blind judge, 0–10)
+
+| Arm | Overall | Recall | Precision | Fix quality |
+|---|---:|---:|---:|---:|
+| max | 9.0 (10, 8) | 10.0 | 9.0 | 9.0 |
+| auto | 9.0 (9, 9) | 10.0 | 8.5 | 9.0 |
+| low | 10.0 (10, 10) | 10.0 | 9.0 | 10.0 |
+
+All six reviews found all six ground-truth bugs; the differences are inside
+judge noise at n=2.
+
+### Reading
+
+- **On these tasks, `max → auto/low` showed no measurable quality loss** — for
+  a failing-test fix the objective pass rate is identical, and the blind review
+  scores are statistically indistinguishable.
+- **Auto is not a one-way ratchet**: it dropped to `low` on mechanical edit
+  rounds and lifted to `high` when the work became mixed. Review runs stayed at
+  `high` because they had too few tool rounds to trigger a downgrade.
+- **Caveat**: both tasks are small and the judge is lenient (recall saturated at
+  10/10). For ambiguous or architectural work, keep `floor: high` or check the
+  `effort_status` ledger before trusting a downgrade.
+
 ## Reproduce
 
 1. Create 10 small text files; run a "read each file and table the first line"

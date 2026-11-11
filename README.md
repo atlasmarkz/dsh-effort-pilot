@@ -58,6 +58,8 @@ From the local benchmark (see [BENCHMARK.md](BENCHMARK.md); n=2, gateway noise v
 
 Projected to a 30-step session: ~3k–10k output tokens saved, i.e. **$0.002–$0.006** per task on Flash and **$0.005–$0.020** on V4 Pro (output `$1.98/M`). Formula: **share of downgraded steps × thinking tokens saved per step × output price**. The speed win is the more direct one (about -33% wall clock); more expensive or thinking-heavy models save more.
 
+**Quality:** two tasks (fix a failing suite, blind-reviewed code review), two runs per arm — all three arms passed 6/6 on the fix with the test file untouched, and blind judge scores were max 9.0 / auto 9.0 / low 10.0 (n=2, no measurable difference; see [BENCHMARK.md](BENCHMARK.md)).
+
 ## Development
 
 ```bash

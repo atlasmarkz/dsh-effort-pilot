@@ -4,6 +4,18 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [1.0.2] - 2026-11-12
+
+### Added
+
+- Quality A/B in `BENCHMARK.md`: a failing-test fix task (objective) and a
+  blind-reviewed code-review task, each run at `max`, `auto` and `low`, two
+  samples per arm. Fix pass rate was identical (6/6 in all six runs, test file
+  untouched); blind judge overall scores were max 9.0 / auto 9.0 / low 10.0 —
+  no measurable quality difference at n=2.
+- Noted that auto is not a one-way ratchet: it lifted `low -> high` when the
+  work turned mixed (`auto:mixed-work`).
+
 ## [1.0.1] - 2026-11-12
 
 ### Changed

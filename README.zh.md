@@ -58,6 +58,8 @@ dsh plugin --profile web add github:atlasmarkz/dsh-effort-pilot
 
 按 30 步任务折算：约省 **0.3 万–1 万输出 token**；OpenCode Go 目录价下 Flash 约 **$0.002–0.006**/任务，V4 Pro（输出 `$1.98/M`）约 **$0.005–0.020**。通用公式：**降档步骤占比 × 每步省下的思考 token × 输出单价**；用 DSH 自带 token 统计 + `effort_status` 台账校准你自己的比例。**速度提升比省钱更直接**（约 -33% 整轮耗时），模型越贵、思考越重，省钱越明显。
 
+**质量**：修复失败测试与盲评代码审查两个任务，max / auto / low 各 2 次——修复任务三臂全部 6/6 通过（测试文件未被改），盲评得分 max 9.0 / auto 9.0 / low 10.0，无可测差异（n=2，详见 [BENCHMARK.md](BENCHMARK.md)）。
+
 ## 开发
 
 ```bash
