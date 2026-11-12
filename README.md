@@ -1,7 +1,7 @@
 <p align="center"><img src="assets/logo.svg" width="150" alt="dsh-effort-pilot logo: a three-step thinking-effort ladder next to an autopilot dial"></p>
 <h1 align="center">dsh-effort-pilot</h1>
 
-<p align="center"><a href="https://github.com/atlasmarkz/dsh-effort-pilot/releases"><img alt="release" src="https://img.shields.io/github/v/release/atlasmarkz/dsh-effort-pilot"></a> <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-4f8cff"></a></p>
+<p align="center"><a href="https://www.npmjs.com/package/dsh-effort-pilot"><img alt="npm" src="https://img.shields.io/npm/v/dsh-effort-pilot"></a> <a href="https://github.com/atlasmarkz/dsh-effort-pilot/releases"><img alt="release" src="https://img.shields.io/github/v/release/atlasmarkz/dsh-effort-pilot"></a> <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-4f8cff"></a></p>
 
 > **The money line (measured):** thinking tokens are billed as output. On this machine (OpenCode Go, DeepSeek V4.1 Flash, DSH 0.2.2-alpha.2), dropping the same task from `max` to `low` cut output tokens by **~36%**, decode time by **~38%** and wall clock by **~33%**. A 30-step session saves roughly 3k–10k output tokens — about **$0.002–0.006** on Flash and **$0.005–0.020** on V4 Pro. The speed win is the bigger one; more expensive or more thinking-heavy models save proportionally more. Method and raw numbers: [BENCHMARK.md](BENCHMARK.md).
 

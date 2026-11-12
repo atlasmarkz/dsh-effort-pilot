@@ -1,7 +1,7 @@
 <p align="center"><img src="assets/logo.svg" width="150" alt="dsh-effort-pilot logo：三档思考强度阶梯 + 自动驾驶表盘"></p>
 <h1 align="center">dsh-effort-pilot</h1>
 
-<p align="center"><a href="https://github.com/atlasmarkz/dsh-effort-pilot/releases"><img alt="release" src="https://img.shields.io/github/v/release/atlasmarkz/dsh-effort-pilot"></a> <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-4f8cff"></a></p>
+<p align="center"><a href="https://www.npmjs.com/package/dsh-effort-pilot"><img alt="npm" src="https://img.shields.io/npm/v/dsh-effort-pilot"></a> <a href="https://github.com/atlasmarkz/dsh-effort-pilot/releases"><img alt="release" src="https://img.shields.io/github/v/release/atlasmarkz/dsh-effort-pilot"></a> <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-4f8cff"></a></p>
 
 > **一句话算账：** 思考 token 按输出价计费。**实测**（OpenCode Go V4.1 Flash，本机 DSH）：同一任务把档位从 `max` 降到 `low`，输出 token 约 **-36%**、解码耗时约 **-38%**、整轮耗时约 **-33%**；30 步任务量级约省 0.3 万–1 万输出 token，折算 Flash 约 **0.2–0.6 美分**、V4 Pro 约 **0.5–2 美分**。速度收益比省钱更明显；模型越贵、思考越重，省得越多。方法与原始数据见 [BENCHMARK.md](BENCHMARK.md)。
 
