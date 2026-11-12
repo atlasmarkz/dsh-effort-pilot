@@ -10,11 +10,21 @@
 ## 安装
 
 ```bash
-dsh plugin --profile web add github:atlasmarkz/dsh-effort-pilot
-# 或 npm：dsh plugin --profile web add dsh-effort-pilot
+dsh plugin --profile web add dsh-effort-pilot
+# 或从 GitHub：dsh plugin --profile web add github:atlasmarkz/dsh-effort-pilot
+# 本地开发：dsh plugin --profile web add /absolute/path/to/dsh-effort-pilot
 ```
 
 重启 DSH 生效。零依赖、无构建步骤。
+
+## 支持的模型
+
+不绑定具体模型——档位来自 DSH adapter 声明的 `reasoning.efforts`：
+
+- ✅ **声明 ≥2 个档位**的路由：自动调度与 `set_effort` 都可用。例如 OpenCode Go 的 DeepSeek V4.1 Flash 声明了 `low / high / max`。
+- ⚠️ **只声明 1 个档位**的路由：插件不动它（`set_effort` 会明确返回 `Declared levels: max` 这类信息）。
+- ⚠️ **只有 `off`/`on` 开关**的模型：没有可移动的档位阶梯，不在调度范围。
+- 换模型后让 Agent 调一次 `effort_status`，返回的 `declared levels` 就是能否调档、以及可调范围的依据。
 
 ## 它怎么决策
 

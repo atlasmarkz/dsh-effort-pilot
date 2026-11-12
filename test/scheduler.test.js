@@ -191,6 +191,15 @@ test('a live session is hydrated from its existing log without pausing', async (
   assert.deepEqual(status.allowed, ['low', 'high', 'max']);
 });
 
+test('status omits unknown optional fields instead of emitting undefined', () => {
+  const h = harness();
+  h.emit('request/header', { header: { config: { provider: 'p', model: 'm' } } });
+  const status = h.scheduler.status(h.session);
+  assert.equal('effort' in status, false);
+  assert.equal(status.allowed.length, 0);
+  for (const value of Object.values(status)) assert.notEqual(value, undefined);
+});
+
 test('forget drops a session', () => {
   const h = startAt('high');
   assert.equal(h.scheduler.status(h.session).model, 'deepseek-v4.1-flash');

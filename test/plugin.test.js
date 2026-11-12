@@ -149,6 +149,36 @@ test('declared schemas use raw JSON Schema, not the author DSL', () => {
   }
 });
 
+test('effort_status is lossless JSON before an effort is selected', async () => {
+  const ctx = fakeCtx();
+  apply(ctx, {});
+  const { session, emit } = fakeSession(ctx);
+  // A route that declares efforts but whose selection is adapter-defaulted:
+  // the host rejects tool output containing an explicit `undefined` field.
+  emit('request/header', { header: { config: { provider: 'opencode-go', model: 'some-model' } } });
+  await tick();
+
+  const value = await tool(ctx, 'effort_status').execute({}, { agent: { session } });
+  const assertLossless = (node, path = 'root') => {
+    assert.notEqual(node, undefined, `${path} is undefined`);
+    if (typeof node === 'number') {
+      assert.ok(Number.isFinite(node) && !Object.is(node, -0), `${path} must be a finite non-negative-zero number`);
+      return;
+    }
+    if (Array.isArray(node)) {
+      assert.equal(Object.keys(node).length, node.length, `${path} must not be sparse`);
+      node.forEach((child, index) => assertLossless(child, `${path}[${index}]`));
+      return;
+    }
+    if (node !== null && typeof node === 'object') {
+      assert.equal(Object.getPrototypeOf(node), Object.prototype, `${path} must be a plain object`);
+      for (const [key, child] of Object.entries(node)) assertLossless(child, `${path}.${key}`);
+    }
+  };
+  assertLossless(value);
+  assert.equal('effort' in value, false, 'adapter-default effort must be omitted, not undefined');
+});
+
 test('tool outputs never exceed their declared output schema', async () => {
   const ctx = fakeCtx();
   apply(ctx, {});

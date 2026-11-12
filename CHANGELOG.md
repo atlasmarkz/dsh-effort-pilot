@@ -4,6 +4,22 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [1.0.3] - 2026-11-12
+
+### Fixed
+
+- `effort_status` emitted explicit `undefined` fields when the current effort
+  was the adapter default (a route that declares efforts but has no explicit
+  selection yet). The host rejects such a tool result with "value is not
+  lossless JSON"; optional fields are now omitted and a regression test covers
+  the lossless-JSON contract.
+
+### Added
+
+- A "Model support" section in both READMEs: the pilot works with any route whose
+  adapter declares **two or more** reasoning efforts; single-level routes and
+  toggle-only (`off`/`on`) models are left untouched.
+
 ## [1.0.2] - 2026-11-12
 
 ### Added

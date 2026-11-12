@@ -10,11 +10,21 @@ A per-step **thinking-effort pilot** for DeepSeek Harness (DSH): cheap tool roun
 ## Install
 
 ```bash
-dsh plugin --profile web add github:atlasmarkz/dsh-effort-pilot
-# or npm: dsh plugin --profile web add dsh-effort-pilot
+dsh plugin --profile web add dsh-effort-pilot
+# or from GitHub: dsh plugin --profile web add github:atlasmarkz/dsh-effort-pilot
+# local dev: dsh plugin --profile web add /absolute/path/to/dsh-effort-pilot
 ```
 
 Restart DSH. Zero dependencies, no build step.
+
+## Model support
+
+The pilot is not tied to a model: the ladder comes from the route's adapter-declared `reasoning.efforts`.
+
+- ✅ **Two or more declared levels** (e.g. OpenCode Go's DeepSeek V4.1 Flash declares `low / high / max`): automatic scheduling and `set_effort` both work.
+- ⚠️ **One declared level** (some models only expose `max`): the pilot leaves it alone; `set_effort` answers with the declared list.
+- ⚠️ **Toggle-only models** (`off`/`on`): there is no ladder to move, so they are out of scope.
+- After switching models, ask the agent to call `effort_status` once — its `declared levels` is the authoritative answer.
 
 ## How it decides
 
